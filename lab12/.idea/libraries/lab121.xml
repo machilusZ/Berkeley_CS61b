@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="lab121">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../lib/hamcrest-core-1.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../lib/jh61b.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../lib/junit-4.12.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../lib/ucb.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$" />
+      <root url="jar://$PROJECT_DIR$/../lib/jh61b.jar!/" />
+    </SOURCES>
+  </library>
+</component>
