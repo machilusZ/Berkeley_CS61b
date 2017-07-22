@@ -1,5 +1,6 @@
 package gitlet;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.File;
@@ -303,6 +304,12 @@ public class gitlet implements Serializable{
         System.out.println("\n");
         System.out.println("=== Untracked Files ===");
         //Untracked to be added, it seems that I miss this feature in commitTree or commit
+        setUntracked();
+        for(String name:commitTree.untracked){
+            if(!commitTree.staged.contains(name)){
+                System.out.println(name);
+            }
+        }
     }
     public static void checkout(String... args){
         if(args.length==2){
@@ -559,7 +566,82 @@ public class gitlet implements Serializable{
             commitTree.currentBranch=branchName;
             System.out.println("Current branch fast-forwarded.");
         }
-        //handle merge conflict
-    }
+        HashSet<String> conflictFiles=findConflict(headID,branchID,split,branchHead.getCommitID());
+        for(String cf:conflictFiles){
+            resolve(name,headID,branchHead.getCommitID());
+        }
+        if(conflictFiles.size()!=0){
+            System.out.println("Encountered a merge conflict.");
+        }else{
+            gitlet.commit("Merged "+ commitTree.currentBranch+" with "+name+".");
+        }
 
+    }
+    //handle merge conflict
+
+        /*citation:https://softwarecave.org/2014/03/03/git-how-to-resolve-merge-conflicts/
+         *citation:http://www.w3resource.com/java-tutorial/string/string_getbytes.php
+         *https://github.com/hvqzao/java-deserialize-webapp/blob/master/src/main/java/hvqzao/java/deserialize/webapp/servlet/Servlet.java
+         *https://stackoverflow.com/questions/161813/how-to-resolve-merge-conflicts-in-git
+         */
+    public static HashSet<String> findConflict(String headID,String sourceBranchID,Commit split,String sourceID){
+        HashSet<String> conflictFiles=new HashSet<>();
+        Commit brHead=Commit.hashToCommit(sourceBranchID);
+        Commit head=Commit.hashToCommit(headID);
+        for(String name:brHead.nameToBlobID.keySet()){
+            if(!split.nameToBlobID.containsKey(name)){
+                checkout(sourceBranchID,name);
+                add(name);
+            }else if(split.nameToBlobID.containsKey(name)){
+               if(!split.nameToBlobID.get(name).equals(brHead.nameToBlobID.get(name))&&!(!head.nameToBlobID.get(name).equals(split.nameToBlobID.get(name))||head.nameToBlobID.containsKey(name))){
+                   conflictFiles.add(name);
+               }
+            }else if(head.nameToBlobID.containsKey(name)) {
+                conflictFiles.add(name);
+            }
+        }
+        for(String name:head.nameToBlobID.keySet()){
+            if(split.nameToBlobID.containsKey(name)){
+                if(!brHead.nameToBlobID.containsKey(name)&&split.nameToBlobID.get(name).equals(head.nameToBlobID.get(name))){
+                    rm(name);
+                }
+            }else if(!brHead.nameToBlobID.containsKey(name)&&!split.nameToBlobID.get(name).equals(head.nameToBlobID.get(name))){
+                conflictFiles.add(name);
+            }else if(!split.nameToBlobID.containsKey(name)&&!brHead.nameToBlobID.get(name).equals(head.nameToBlobID.get(name))&&brHead.nameToBlobID.containsKey(name)){
+                conflictFiles.add(name);
+            }else if(brHead.nameToBlobID.containsKey(name)&&!split.nameToBlobID.get(name).equals(brHead.nameToBlobID.get(name))){
+                conflictFiles.add(name);
+            }
+        }
+        return  conflictFiles;
+    }
+    public static void resolve(String name,String headID,String branchHeadID){
+        Commit head=Commit.hashToCommit(headID);
+        Commit branchHead=Commit.hashToCommit(branchHeadID);
+        File current=new File(".gitlet/blobs/"+head.nameToBlobID.get(name));
+        File source=new File(".gitlet/blobs/"+head.nameToBlobID.get(name));
+        File output=new File(name);
+        try{
+            ByteArrayOutputStream outputStream=new ByteArrayOutputStream();
+            byte[] realH="<<<<<<< HEAD\n".getBytes();
+            outputStream.write(realH);
+            if(current.exists()){
+                byte[] curSer=Utils.readContents(current);
+                outputStream.write(curSer);
+            }
+            byte[] split="=======\n".getBytes();
+            outputStream.write(split);
+            if(source.exists()){
+                byte[] serSource=Utils.readContents(source);
+                outputStream.write(serSource);
+            }
+            byte[] end=">>>>>>>\n".getBytes();
+            outputStream.write(end);
+            byte[] byteOut=outputStream.toByteArray();
+            Utils.writeContents(output,byteOut);
+        }catch (IOException e){
+            System.out.println("Error copying the file");
+            e.printStackTrace();
+        }
+    }
 }

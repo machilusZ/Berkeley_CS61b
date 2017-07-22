@@ -1,11 +1,13 @@
 package gitlet;
 
+import org.junit.Before;
 import ucb.junit.textui;
 import org.junit.Test;
+import org.junit.Before;
 import static org.junit.Assert.*;
 
 /** The suite of all JUnit tests for the gitlet package.
- *  @author
+ *  @Yunan Zhang
  */
 public class UnitTest {
 
@@ -15,10 +17,12 @@ public class UnitTest {
         textui.runClasses(UnitTest.class);
     }
 
-    /** A dummy test to avoid complaint. */
-    @Test
-    public void placeholderTest() {
-    }
+    static  final String GITLET_DIR=".gitlet/";
+    static final String STAGED_DIR=".gitlet/staged/";
+    static final String COMMITS=".gitlet/commits/";
+    //citation:https://stackoverflow.com/questions/7455931/java-before-and-test-annotation
+
+
 
 }
 
