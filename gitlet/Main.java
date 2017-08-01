@@ -21,6 +21,11 @@ public class Main {
             case  "commit":
                 gitlet.commit(args);
                 break;
+            case "add":
+                if(args.length==2) {
+                    gitlet.add(args[1]);
+                }
+                break;
             case  "rm":
                 gitlet.rm(args[1]);
                 break;

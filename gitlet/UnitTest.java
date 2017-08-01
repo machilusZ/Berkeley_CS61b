@@ -1,9 +1,9 @@
 package gitlet;
 
 import org.junit.Before;
+import java.io.File;
 import ucb.junit.textui;
 import org.junit.Test;
-import org.junit.Before;
 import static org.junit.Assert.*;
 
 /** The suite of all JUnit tests for the gitlet package.
@@ -21,7 +21,23 @@ public class UnitTest {
     static final String STAGED_DIR=".gitlet/staged/";
     static final String COMMITS=".gitlet/commits/";
     //citation:https://stackoverflow.com/questions/7455931/java-before-and-test-annotation
+    @Before
+    public void before(){
+        File f=new File(GITLET_DIR);
+        if(!f.exists()){
+            gitlet.init();
+        }
 
+    }
+    @Test
+    public void testInit(){
+        File f1=new File(STAGED_DIR);
+        File f2=new File(".gitlet/blobs");
+        File f3=new File(COMMITS);
+        assertTrue(f1.exists());
+        assertTrue(f2.exists());
+        assertTrue(f3.exists());
+    }
 
 
 }
