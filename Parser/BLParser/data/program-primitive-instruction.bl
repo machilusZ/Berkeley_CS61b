@@ -1,0 +1,17 @@
+PROGRAM Test IS
+
+  INSTRUCTION infect IS
+     move
+  END one
+  
+  INSTRUCTION two IS
+    turnleft
+    turnleft
+  END two
+
+BEGIN
+  WHILE true DO
+    two
+    infect
+  END WHILE
+END Test

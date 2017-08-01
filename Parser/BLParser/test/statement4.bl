@@ -1,0 +1,11 @@
+WHILE true DO
+    move
+    IF true THEN
+        infect
+        IF true THEN
+            move
+        END IF
+    ELSE
+        turnright
+    END IF
+END WHILE
